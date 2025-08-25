@@ -1,0 +1,508 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alvarez Burguer - Alitas a Domicilio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { background: rgba(0,0,0,0.9); color: white; padding: 1rem 0; position: fixed; width: 100%; top: 0; z-index: 1000; transition: all 0.3s ease; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: bold; color: #ff6b35; }
+        
+        .hamburger { display: none; flex-direction: column; cursor: pointer; padding: 5px; }
+        .hamburger span { width: 25px; height: 3px; background: white; margin: 3px 0; transition: 0.3s; border-radius: 2px; }
+        .hamburger.active span:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
+        
+        .nav-menu { display: flex; list-style: none; gap: 2rem; align-items: center; }
+        .nav-menu.active { display: flex; }
+        .nav-menu li a { color: white; text-decoration: none; transition: color 0.3s; padding: 0.5rem 1rem; border-radius: 5px; }
+        .nav-menu li a:hover { color: #ff6b35; background: rgba(255, 107, 53, 0.1); }
+        
+        .cart-icon { position: relative; background: #ff6b35; padding: 10px 15px; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
+        .cart-icon:hover { background: #e55a2b; transform: scale(1.05); }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #e55a2b; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
+        
+        .hero { background: linear-gradient(135deg, #ff6b35, #f7931e); height: 100vh; display: flex; align-items: center; text-align: center; color: white; }
+        .hero-content h1 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .hero-content p { font-size: 1.2rem; margin-bottom: 2rem; }
+        
+        .btn { display: inline-block; background: #ff6b35; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s; border: none; cursor: pointer; font-size: 1rem; }
+        .btn:hover { background: #e55a2b; transform: translateY(-2px); }
+        .btn-add { background: #28a745; padding: 8px 15px; font-size: 0.9rem; margin-left: 10px; }
+        .btn-add:hover { background: #218838; }
+        
+        .section { padding: 4rem 0; background: white; }
+        .section:nth-child(even) { background: #f8f9fa; }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #333; }
+        
+        .menu-category { margin-bottom: 3rem; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .category-title { font-size: 1.8rem; color: #ff6b35; margin-bottom: 1.5rem; text-align: center; font-weight: bold; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; }
+        
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border: 2px solid #f0f0f0; border-radius: 10px; transition: all 0.3s; cursor: pointer; }
+        .menu-item:hover { border-color: #ff6b35; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .item-info h4 { color: #333; margin-bottom: 0.5rem; font-size: 1.2rem; }
+        .item-description { font-size: 0.9rem; color: #666; margin-bottom: 0.5rem; }
+        .item-price { font-weight: bold; color: #ff6b35; font-size: 1.1rem; text-align: right; }
+        .item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+        
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 15% auto; padding: 2rem; border-radius: 15px; width: 90%; max-width: 500px; position: relative; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 15px; top: 10px; }
+        .close:hover { color: #ff6b35; }
+        .modal-title { font-size: 1.5rem; color: #ff6b35; margin-bottom: 1rem; text-align: center; }
+        .option-buttons { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+        .option-btn { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 2px solid #ff6b35; border-radius: 10px; background: white; cursor: pointer; transition: all 0.3s; font-size: 1.1rem; }
+        .option-btn:hover { background: #ff6b35; color: white; }
+        
+        .delivery-info { background: #f7931e; color: white; padding: 2rem; border-radius: 15px; text-align: center; margin: 2rem 0; }
+        .delivery-info h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        
+        .order-form { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #ff6b35; }
+        .cart-display { background: #f8f9fa; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; min-height: 100px; }
+        .empty-cart { text-align: center; color: #666; font-style: italic; }
+        
+        footer { background: #333; color: white; text-align: center; padding: 2rem 0; }
+        .contact-info { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem; }
+        
+        .cart-summary { position: fixed; bottom: 20px; right: 20px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 1rem; max-width: 300px; display: none; z-index: 1500; }
+        .cart-summary.show { display: block; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+        .cart-item:last-child { border-bottom: none; font-weight: bold; color: #ff6b35; }
+        .remove-item { background: #dc3545; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 0.8rem; }
+        
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2rem; }
+            .hamburger { display: flex; }
+            .nav-menu { 
+                position: fixed; 
+                left: -100%; 
+                top: 70px; 
+                flex-direction: column; 
+                background-color: rgba(0,0,0,0.95); 
+                width: 100%; 
+                text-align: center; 
+                transition: 0.3s; 
+                box-shadow: 0 10px 27px rgba(0,0,0,0.05); 
+                padding: 2rem 0;
+                gap: 1rem;
+            }
+            .nav-menu.active { left: 0; }
+            .nav-menu li { margin: 1rem 0; }
+            .nav-menu li a { font-size: 1.2rem; padding: 1rem; display: block; }
+            .contact-info { flex-direction: column; gap: 1rem; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-item { flex-direction: column; text-align: center; gap: 1rem; }
+            .item-actions { align-items: center; }
+            .cart-summary { right: 10px; left: 10px; max-width: none; }
+            .modal-content { margin: 10% auto; width: 95%; }
+        }
+        
+        @media (min-width: 769px) {
+            .nav-menu { display: flex !important; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">🍗 Wings Delicious</div>
+                
+                <div class="hamburger" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#inicio" onclick="closeMenu()">Inicio</a></li>
+                    <li><a href="#menu" onclick="closeMenu()">Menú</a></li>
+                    <li><a href="#pedidos" onclick="closeMenu()">Pedidos</a></li>
+                    <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
+                    <li><div class="cart-icon" onclick="toggleCart()">🛒 Carrito <span class="cart-count" id="cartCount">0</span></div></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>¿Un snack? Prueba nuestras alitas deliciosas</h1>
+                <p>Crujientes por fuera, jugosas por dentro. ¡Se convierte en adicción! 🤤</p>
+                <a href="#pedidos" class="btn">🏍️ Pedir a Domicilio</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="delivery-info">
+        <div class="container">
+            <h3>🚚 DELIVERY GRATIS</h3>
+            <p>Haz tu pedido al: <strong>(+52) 392 103 3554</strong></p>
+            <p>📍 Chaconia 106, El Rosario</p>
+        </div>
+    </div>
+
+    <section id="menu" class="section">
+        <div class="container">
+            <h2 class="section-title">Nuestro Menú</h2>
+            
+            <div class="menu-category">
+                <h3 class="category-title">🍗 ALITAS</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showOptions('Alitas BBQ', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>BBQ</h4><p class="item-description">El sabor tradicional que nunca falla</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Alitas BBQ Búfalo', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>BBQ Búfalo</h4><p class="item-description">Combinación perfecta: dulce y picante</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Alitas Búfalo', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>Búfalo</h4><p class="item-description">Picante perfecto para los valientes</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Alitas Búfalo XXX', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>Búfalo XXX</h4><p class="item-description">Para los que buscan el reto extremo</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Alitas Mango Habanero', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>Mango Habanero</h4><p class="item-description">Tropical con un toque picante</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Alitas BBQ Mango', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>BBQ Mango</h4><p class="item-description">Dulce y ahumado</p></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3 class="category-title">🍖 BONELESS</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showOptions('Boneless BBQ', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>BBQ</h4></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Boneless Búfalo', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>Búfalo</h4></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Boneless Mango Habanero', [{'5 piezas': 60}, {'10 piezas': 110}])">
+                        <div class="item-info"><h4>Mango Habanero</h4></div>
+                        <div class="item-actions"><div class="item-price">5pzs: $60 | 10pzs: $110</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3 class="category-title">🌭 HOT DOGS</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="addToCart('Hot Dog Simple', 40)">
+                        <div class="item-info"><h4>Simple</h4></div>
+                        <div class="item-actions"><div class="item-price">$40</div><button class="btn btn-add" onclick="event.stopPropagation()">Agregar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('Hot Dog con Papas', 70)">
+                        <div class="item-info"><h4>Con Papas</h4></div>
+                        <div class="item-actions"><div class="item-price">$70</div><button class="btn btn-add" onclick="event.stopPropagation()">Agregar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="addToCart('Hot Dog Quesoso', 50)">
+                        <div class="item-info"><h4>Quesoso</h4></div>
+                        <div class="item-actions"><div class="item-price">$50</div><button class="btn btn-add" onclick="event.stopPropagation()">Agregar</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3 class="category-title">🍔 BURGERS</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showOptions('Burger Clásica', [{'Sencilla': 55}, {'Con papas': 95}])">
+                        <div class="item-info"><h4>Clásica</h4></div>
+                        <div class="item-actions"><div class="item-price">Sencilla: $55 | Con papas: $95</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                    <div class="menu-item" onclick="showOptions('Burger Doble Carne', [{'Sencilla': 75}, {'Con papas': 115}])">
+                        <div class="item-info"><h4>Doble Carne</h4></div>
+                        <div class="item-actions"><div class="item-price">Sencilla: $75 | Con papas: $115</div><button class="btn btn-add" onclick="event.stopPropagation()">Seleccionar</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pedidos" class="section">
+        <div class="container">
+            <h2 class="section-title">Realizar Pedido</h2>
+            <div class="order-form">
+                <div class="cart-display" id="cartDisplay">
+                    <div class="empty-cart">Tu carrito está vacío</div>
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre completo:</label>
+                    <input type="text" id="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" required>
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección de entrega:</label>
+                    <textarea id="direccion" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="comentarios">Comentarios adicionales:</label>
+                    <textarea id="comentarios" rows="2"></textarea>
+                </div>
+                <button class="btn" onclick="enviarPedido()" style="width: 100%; font-size: 1.2rem;">Enviar Pedido por WhatsApp</button>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacto">
+        <div class="container">
+            <div class="contact-info">
+                <div>📞 (+52) 392 103 3554</div>
+                <div>📍 Chaconia 106, El Rosario</div>
+                <div>🕒 Lun-Dom: 5:00 PM - 11:00 PM</div>
+            </div>
+            <p>&copy; 2024 Wings Delicious. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <div class="cart-summary" id="cartSummary">
+        <h4>🛒 Tu Carrito</h4>
+        <div id="cartItems"></div>
+        <div class="cart-item">
+            <span>Total:</span>
+            <span id="cartTotal">$0</span>
+        </div>
+        <button class="btn" onclick="document.getElementById('pedidos').scrollIntoView()" style="width: 100%; margin-top: 1rem;">Ir a Pedidos</button>
+    </div>
+
+    <div id="optionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 class="modal-title" id="modalTitle">Selecciona una opción</h3>
+            <div class="option-buttons" id="optionButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let cartCount = 0;
+        let cartTotal = 0;
+
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.querySelector('.hamburger');
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.querySelector('.hamburger');
+            navMenu.classList.remove('active');
+            hamburger.classList.remove('active');
+        }
+
+        function showOptions(itemName, options) {
+            const modal = document.getElementById('optionsModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const optionButtons = document.getElementById('optionButtons');
+            
+            modalTitle.textContent = itemName;
+            optionButtons.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionName = Object.keys(option)[0];
+                const price = option[optionName];
+                
+                const button = document.createElement('div');
+                button.className = 'option-btn';
+                button.innerHTML = `<span>${optionName}</span><span>$${price}</span>`;
+                button.onclick = () => {
+                    addToCart(`${itemName} (${optionName})`, price);
+                    closeModal();
+                };
+                
+                optionButtons.appendChild(button);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('optionsModal').style.display = 'none';
+        }
+
+        function addToCart(itemName, price) {
+            cart.push({name: itemName, price: price});
+            cartCount++;
+            cartTotal += price;
+            updateCartDisplay();
+            updateCartSummary();
+            showCartSummary();
+        }
+
+        function updateCartDisplay() {
+            document.getElementById('cartCount').textContent = cartCount;
+            
+            const cartDisplay = document.getElementById('cartDisplay');
+            if (cart.length === 0) {
+                cartDisplay.innerHTML = '<div class="empty-cart">Tu carrito está vacío</div>';
+            } else {
+                let cartHTML = '<h4>Productos en tu carrito:</h4>';
+                cart.forEach((item, index) => {
+                    cartHTML += `<div class="cart-item">
+                        <span>${item.name}</span>
+                        <span>$${item.price} <button class="remove-item" onclick="removeFromCart(${index})">×</button></span>
+                    </div>`;
+                });
+                cartHTML += `<div class="cart-item"><span><strong>Total:</strong></span><span><strong>$${cartTotal}</strong></span></div>`;
+                cartDisplay.innerHTML = cartHTML;
+            }
+        }
+
+        function updateCartSummary() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotalElement = document.getElementById('cartTotal');
+            
+            cartItems.innerHTML = '';
+            cart.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>$${item.price} <button class="remove-item" onclick="removeFromCart(${index})">×</button></span>
+                `;
+                cartItems.appendChild(itemDiv);
+            });
+            
+            cartTotalElement.textContent = `$${cartTotal}`;
+        }
+
+        function removeFromCart(index) {
+            cartTotal -= cart[index].price;
+            cart.splice(index, 1);
+            cartCount--;
+            updateCartDisplay();
+            updateCartSummary();
+            if (cart.length === 0) {
+                hideCartSummary();
+            }
+        }
+
+        function toggleCart() {
+            const cartSummary = document.getElementById('cartSummary');
+            cartSummary.classList.toggle('show');
+        }
+
+        function showCartSummary() {
+            document.getElementById('cartSummary').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('cartSummary').classList.remove('show');
+            }, 3000);
+        }
+
+        function hideCartSummary() {
+            document.getElementById('cartSummary').classList.remove('show');
+        }
+
+        function enviarPedido() {
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const direccion = document.getElementById('direccion').value;
+            const comentarios = document.getElementById('comentarios').value;
+
+            if (!nombre || !telefono || !direccion || cart.length === 0) {
+                alert('Por favor completa todos los campos obligatorios y agrega productos al carrito.');
+                return;
+            }
+
+            let mensaje = `🍗 *PEDIDO WINGS DELICIOUS* 🍗\n\n`;
+            mensaje += `👤 *Cliente:* ${nombre}\n`;
+            mensaje += `📞 *Teléfono:* ${telefono}\n`;
+            mensaje += `📍 *Dirección:* ${direccion}\n\n`;
+            mensaje += `🛒 *PEDIDO:*\n`;
+            
+            cart.forEach(item => {
+                mensaje += `• ${item.name} - $${item.price}\n`;
+            });
+            
+            mensaje += `\n💰 *TOTAL: $${cartTotal}*\n\n`;
+              
+              if (comentarios) {
+                  mensaje += `📝 *Comentarios:* ${comentarios}\n\n`;
+              }
+              
+              mensaje += `🚚 *Delivery GRATIS*\n`;
+              mensaje += `⏰ Tiempo estimado: 30-45 min\n\n`;
+              mensaje += `¡Gracias por tu pedido! 🍗✨`;
+
+              // Codificar el mensaje para URL
+              const mensajeCodificado = encodeURIComponent(mensaje);
+              
+              // Número de WhatsApp (sin el +)
+              const numeroWhatsApp = '523921033554';
+              
+              // Crear URL de WhatsApp
+              const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${mensajeCodificado}`;
+              
+              // Abrir WhatsApp
+              window.open(urlWhatsApp, '_blank');
+              
+              // Opcional: Limpiar el carrito después de enviar
+              // cart = [];
+              // cartCount = 0;
+              // cartTotal = 0;
+              // updateCartDisplay();
+              // updateCartSummary();
+          }
+
+          // Cerrar modal al hacer clic fuera de él
+          window.onclick = function(event) {
+              const modal = document.getElementById('optionsModal');
+              if (event.target == modal) {
+                  closeModal();
+              }
+          }
+
+          // Smooth scroll para los enlaces del menú
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+              anchor.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  const target = document.querySelector(this.getAttribute('href'));
+                  if (target) {
+                      target.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start'
+                      });
+                  }
+              });
+          });
+
+          // Efecto de header al hacer scroll
+          window.addEventListener('scroll', function() {
+              const header = document.querySelector('header');
+              if (window.scrollY > 100) {
+                  header.style.background = 'rgba(0,0,0,0.95)';
+                  header.style.backdropFilter = 'blur(10px)';
+              } else {
+                  header.style.background = 'rgba(0,0,0,0.9)';
+                  header.style.backdropFilter = 'none';
+              }
+          });
+      </script>
+  </body>
+  </html>
